@@ -3,48 +3,64 @@ name = "rag-jupyterlab-uv"
 version = "0.1.0"
 description = "JupyterLab on Tanzu Platform for Cloud Foundry with uv"
 requires-python = ">=3.11"
+
 dependencies = [
-    "jupyterlab==4.2.5",
-    "jupyterlab-git==0.51.2",
-    "notebook",
-    "ipykernel",
-    "python-dotenv",
-    "ipywidgets",
-    "requests",
-    "openai",
-    "gradio",
-    "langchain",
-    "langchain-openai",
-    "langchain-experimental",
-    "langchain-chroma",
-    "langchain[docarray]",
-    "datasets",
-    "matplotlib",
-    "google-generativeai",
-    "anthropic",
-    "unstructured",
-    "pydub",
-    "modal",
-    "ollama",
-    "langgraph-checkpoint-sqlite",
-    "tavily-python",
-    "langchain-mcp-adapters",
-    "matplotlib",
-    "unstructured",
-    "pydub",
-    "modal",
-    "trulens>=2.3.1",
-    "trulens-apps-langchain>=2.3.1",
-    "trulens-providers-openai>=2.2.2",
-    "langchain-postgres>=0.0.15",
-    "psycopg2>=2.9.10",
-    "trulens-providers-litellm>=2.3.1",
-    "langchain-nomic>=0.1.4",
-    "cfenv>=0.5.3",
-    "langgraph-prebuilt>=0.6.4",
-    "langgraph>=0.6.7",
-    "python-dotenv",
+  "jupyterlab==4.2.5",
+  "jupyterlab-git==0.51.2",
+  "notebook",
+  "ipykernel",
+  "python-dotenv",
+  "ipywidgets",
+  "requests",
+  "openai",
+  "gradio",
+
+  # LangChain stack (no deprecated extras)
+  "langchain",
+  "langchain-openai",
+  "langchain-experimental",
+  "langchain-chroma",
+  # If you actually use DocArray, add it explicitly (instead of langchain[docarray]):
+  # "docarray",
+
+  "datasets",
+  "matplotlib",
+
+  # Other model providers
+  "google-generativeai",
+  "anthropic",
+
+  # 'unstructured' often pulls unstructured-inference -> onnxruntime.
+  # On Intel macOS < 13, pin onnxruntime to a wheel that exists (1.16.x works).
+  # If you're on macOS 13+ you can bump this to 1.22.1 safely.
+  "unstructured",
+  "onnxruntime==1.16.3",
+
+  "pydub",
+  "modal",
+  "ollama",
+
+  "langgraph-checkpoint-sqlite",
+  "tavily-python",
+  "langchain-mcp-adapters",
+
+  "trulens>=2.3.1",
+  "trulens-apps-langchain>=2.3.1",
+  "trulens-providers-openai>=2.2.2",
+  "langchain-postgres>=0.0.15",
+  "psycopg2>=2.9.10",
+  "trulens-providers-litellm>=2.3.1",
+  "langchain-nomic>=0.1.4",
+  "cfenv>=0.5.3",
+  "langgraph-prebuilt>=0.6.4",
+  "langgraph>=0.6.7",
 ]
 
+[dependency-groups]
+# move any dev tooling here (replaces deprecated tool.uv.dev-dependencies)
+dev = ["pytest", "ruff", "mypy"]
+
+# Helps uv resolve wheels for your actual platform so it won’t “choose”
+# a macOS 13+ only wheel like onnxruntime 1.22.1 on older macOS.
 [tool.uv]
-dev-dependencies = []
+required-environments = ["macosx_10_16_x86_64-cpython-3.11"]
