@@ -1,7 +1,7 @@
 # aircraftassistance
 RAG based aircraft assistance
 
-# to run Juoyter Lab notebook
+# Run Juoyter Lab notebook
 - Install uv with the official guide https://docs.astral.sh/uv/getting-started/installation/
 - Clone the github repository
 - project already has pyproject.toml file
