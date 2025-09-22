@@ -34,8 +34,6 @@ API_BASE = os.getenv("API_BASE") + "/v1"
 API_KEY = os.getenv("API_KEY")
 MODEL_NAME = os.getenv("MODEL_NAME")
 
-
-
 def embed_text(text: str):
     headers = {
         "Authorization": f"Bearer {API_KEY}",
