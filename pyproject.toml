@@ -1,5 +1,5 @@
 [project]
-name = "cf-jupyterlab-uv"
+name = "rag-jupyterlab-uv"
 version = "0.1.0"
 description = "JupyterLab on Tanzu Platform for Cloud Foundry with uv"
 requires-python = ">=3.11"
