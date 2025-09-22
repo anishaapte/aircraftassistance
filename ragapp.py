@@ -24,24 +24,19 @@ from openai import OpenAI
 from langchain.chains import RetrievalQA
 import gradio as gr
 import re
-from cfenv import AppEnv
+from dotenv import load_dotenv
+
+load_dotenv()
 # -----------------------------
 # Embedding setup
 # -----------------------------
 # -----------------------------
-# Load services from env
-# -----------------------------
-env = AppEnv()
-
-# -----------------------------
 # Embedding service details
 # -----------------------------
-embedding_service = env.get_service(name="prod-embedding-nomic-text")
-embedding_credentials = embedding_service.credentials
+API_BASE = os.getenv("API_BASE") + "/v1"
+API_KEY = os.getenv("API_KEY")
+MODEL_NAME = os.getenv("MODEL_NAME")
 
-API_BASE = embedding_credentials["api_base"] + "/v1"
-API_KEY = embedding_credentials["api_key"]
-MODEL_NAME = embedding_credentials["model_name"]
 
 
 def embed_text(text: str):
@@ -78,9 +73,8 @@ embedding = CustomEmbeddings()
 # -----------------------------
 # Database connection
 # -----------------------------
-db_service = env.get_service(name="vector-db")
-db_credentials = db_service.credentials
-DB_URI = db_credentials["uri"]
+
+DB_URI = os.getenv("DATABASE_URL")
 
 vectorstore = PGVector(
     embeddings=embedding,
@@ -89,22 +83,15 @@ vectorstore = PGVector(
     use_jsonb=True,
     create_extension=False,   # already created
 )
-# -----------------------------
-# RAG setup
-# -----------------------------
-# Get bound service "gen-ai-qwen3-ultra"
-chat_service = env.get_service(name="gen-ai-qwen3-ultra")
-chat_credentials = chat_service.credentials
 
-# Optional: configure custom http client
 httpx_client = httpx.Client(verify=False)
 
 # Initialize LLM with credentials from cfenv
 llm = ChatOpenAI(
     temperature=0.9,
-    model=chat_credentials["model_name"],
-    base_url=chat_credentials["api_base"],
-    api_key=chat_credentials["api_key"],
+    model=MODEL_NAME,
+    base_url=API_BASE,
+    api_key=API_KEY,
     http_client=httpx_client
 )
 
