@@ -25,74 +25,57 @@ from langchain.chains import RetrievalQA
 import gradio as gr
 import re
 from dotenv import load_dotenv
-
+from langchain.document_loaders import CSVLoader
+from langchain_postgres import PGVector
+from langchain_openai import OpenAIEmbeddings
 load_dotenv()
-# -----------------------------
-# Model setup used for embedding and chat
-# -----------------------------
-API_BASE = os.getenv("API_BASE") + "/v1"
-API_KEY = os.getenv("API_KEY")
-MODEL_NAME = os.getenv("MODEL_NAME")
 
-def embed_text(text: str):
-    headers = {
-        "Authorization": f"Bearer {API_KEY}",
-        "Content-Type": "application/json"
-    }
-    payload = {
-        "model": MODEL_NAME,   # make sure MODEL_NAME is a str, not a tuple
-        "input": text
-    }
+# get db connection url
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-    print("HEADERS:", headers)
-    print("PAYLOAD:", payload)
+## load documents
+loader_maintenance = CSVLoader(file_path="maintenance.csv")
+docs_maintenance = loader_maintenance.load()
 
-    resp = requests.post(
-        f"{API_BASE}/embeddings",
-        headers=headers,
-        json=payload,
-        verify=False
-    )
-    resp.raise_for_status()
-    return resp.json()["data"][0]["embedding"]
+loader_taxonomy = CSVLoader(file_path="aircrafttaxonomy.csv")
+docs_taxonomy = loader_taxonomy.load()
 
-class CustomEmbeddings:
-    def embed_documents(self, texts): return [embed_text(t) for t in texts]
-    def embed_query(self, text): return embed_text(text)
+all_docs = docs_maintenance + docs_taxonomy
 
-embedding = CustomEmbeddings()
 
-# -----------------------------
-# Vectorstore setup
-# -----------------------------
-# -----------------------------
-# Database connection
-# -----------------------------
+embeddings = OpenAIEmbeddings()
 
-DB_URI = os.getenv("DATABASE_URL")
+# See docker command above to launch a postgres instance with pgvector enabled.
+connection = os.getenv("DATABASE_URL")  # Uses psycopg3!
+collection_name = "my_docs"
 
-vectorstore = PGVector(
-    embeddings=embedding,
-    connection=DB_URI,
-    collection_name="maintenance_and_taxonomy",
+vector_store = PGVector(
+    embeddings=embeddings,
+    collection_name=collection_name,
+    connection=connection,
     use_jsonb=True,
-    create_extension=False,   # already created
 )
+vector_store.add_documents(all_docs)
+print(f"✅ Inserted {len(all_docs)} documents into the vectorstore!")
 
-httpx_client = httpx.Client(verify=False)
 
 # Initialize LLM with credentials from cfenv
 llm = ChatOpenAI(
-    temperature=0.9,
-    model=MODEL_NAME,
-    base_url=API_BASE,
-    api_key=API_KEY,
-    http_client=httpx_client
+    model="gpt-4o",
+    temperature=0,
+    max_tokens=None,
+    timeout=None,
+    max_retries=2,
 )
+# Create a retriever from your vectorstore
+retriever = vector_store.as_retriever(search_type="similarity", search_kwargs={"k":3})
 
-retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k":3})
-qa = RetrievalQA.from_chain_type(llm=llm, chain_type="stuff", retriever=retriever)
-
+# Build a RetrievalQA chain
+qa = RetrievalQA.from_chain_type(
+    llm=llm,
+    chain_type="stuff",
+    retriever=retriever
+)
 
 # -----------------------------
 # Gradio chatbot function
