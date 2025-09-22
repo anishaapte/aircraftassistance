@@ -43,6 +43,7 @@ dependencies = [
     "cfenv>=0.5.3",
     "langgraph-prebuilt>=0.6.4",
     "langgraph>=0.6.7",
+    "python-dotenv",
 ]
 
 [tool.uv]
