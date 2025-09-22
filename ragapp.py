@@ -28,10 +28,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 # -----------------------------
-# Embedding setup
-# -----------------------------
-# -----------------------------
-# Embedding service details
+# Model setup used for embedding and chat
 # -----------------------------
 API_BASE = os.getenv("API_BASE") + "/v1"
 API_KEY = os.getenv("API_KEY")
