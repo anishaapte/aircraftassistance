@@ -1,10 +1,16 @@
+import os
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+from dotenv import load_dotenv
 
-# Replace with your actual connection string
-CONN_STR = "your_db_connection_url"
+# Load variables from .env
+load_dotenv()
 
+# Get database URL from .env
+CONN_STR = os.getenv("DATABASE_URL")
 
+if not CONN_STR:
+    raise ValueError("DATABASE_URL not found in .env file")
 
 def init_pgvector_tables():
     conn = psycopg2.connect(CONN_STR)
