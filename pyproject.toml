@@ -19,7 +19,6 @@ dependencies = [
   "langchain",
   "langchain-openai",
   "langchain-experimental",
-  "langchain-chroma",
   # If you actually use DocArray, add it explicitly (instead of langchain[docarray]):
   # "docarray",
 
