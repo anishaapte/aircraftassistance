@@ -63,4 +63,6 @@ dev = ["pytest", "ruff", "mypy"]
 # Helps uv resolve wheels for your actual platform so it won’t “choose”
 # a macOS 13+ only wheel like onnxruntime 1.22.1 on older macOS.
 [tool.uv]
-required-environments = ["macosx_10_16_x86_64-cpython-3.11"]
+required-environments = [
+  "sys_platform == 'darwin' and platform_machine == 'x86_64' and python_version >= '3.11'"
+]
