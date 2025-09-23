@@ -1,6 +1,18 @@
 # aircraftassistance
 RAG based aircraft assistance
 
+# Pre-Requisites
+- Create .env file with the following
+<pre>
+DATABASE_URL=your-db-url
+API_BASE=https://your-api-base-url
+API_KEY=your-secret-api-key
+MODEL_NAME=your-model-name
+OPENAI_API_KEY=your-api-key
+
+</pre>
+- This rag application uses pgvector database. Use your database connection string as the database url. 
+
 # Run Jupyter Lab notebook
 - Install uv with the official guide https://docs.astral.sh/uv/getting-started/installation/
 - Clone the github repository
